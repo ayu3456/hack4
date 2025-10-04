@@ -10,21 +10,15 @@ import { Github, Code2, Users, Trophy, Zap } from "lucide-react"
 
 export default function SignupPage() {
   const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { loginWithGithub } = useAuth()
-  const router = useRouter()
 
   const handleGithubSignup = async () => {
-    setIsLoading(true)
-    setError("")
-    try {
-      await loginWithGithub()
-      router.push("/")
-    } catch (err) {
-      setError("Failed to sign up with GitHub")
-    } finally {
-      setIsLoading(false)
-    }
+    const clientId = 'Ov23lixXW1MPoaQTGGuS';
+    // This should point to your backend route
+    const redirectUri = 'http://localhost:3001/auth/github/callback';
+    const scope = 'user:email';
+    console.log(":large_blue_circle: Starting GitHub OAuth flow...");
+    console.log("Redirect URI:", redirectUri);
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
   }
 
   return (
@@ -119,10 +113,9 @@ export default function SignupPage() {
                 variant="default"
                 className="w-full h-12 text-base"
                 onClick={handleGithubSignup}
-                disabled={isLoading}
               >
                 <Github className="mr-2 h-5 w-5" />
-                {isLoading ? "Creating account..." : "Continue with GitHub"}
+                {"Continue with GitHub"}
               </Button>
 
               <div className="relative">

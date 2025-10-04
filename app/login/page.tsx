@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "../../context/authContext";
@@ -10,29 +10,65 @@ import { Github, Code2, Users, Trophy, Zap } from "lucide-react"
 
 export default function LoginPage() {
   const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { loginWithGithub } = useAuth()
   const router = useRouter()
+  const { user, isAuthenticated, loading, checkAuth } = useAuth()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('✅ User is already authenticated, redirecting to home...')
+      router.push('/')
+    }
+  }, [isAuthenticated, user, router])
+
+  // Check for auth status when component loads
+  useEffect(() => {
+    // Check if we just came back from GitHub OAuth
+    const checkAuthStatus = async () => {
+      await checkAuth()
+    }
+    
+    checkAuthStatus()
+  }, [checkAuth])
 
   const githubLogin = () => {
     const clientId = 'Ov23lixXW1MPoaQTGGuS';
-    // This should point to your backend route
     const redirectUri = 'http://localhost:3001/auth/github/callback';
     const scope = 'user:email';
-    console.log(":large_blue_circle: Starting GitHub OAuth flow...");
+    
+    console.log("🔵 Starting GitHub OAuth flow...");
     console.log("Redirect URI:", redirectUri);
+    
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
   };
 
-  const handleGithubLogin = async () => {
-    setIsLoading(true)
-    setError("")
-    try {
-      githubLogin()
-    } catch (err) {
-      setError("Failed to login with GitHub")
-      setIsLoading(false)
-    }
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If already authenticated, show redirect message
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Welcome back!</h2>
+          <p className="text-gray-600">Redirecting you to the homepage...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -131,12 +167,11 @@ export default function LoginPage() {
 
               <Button
                 variant="default"
-                className="w-full h-12 text-base"
-                onClick={handleGithubLogin}
-                disabled={isLoading}
+                className="w-full h-12 text-base cursor-pointer"
+                onClick={githubLogin}
               >
                 <Github className="mr-2 h-5 w-5" />
-                {isLoading ? "Signing in..." : "Continue with GitHub"}
+                Sign in with GitHub
               </Button>
 
               <div className="relative">

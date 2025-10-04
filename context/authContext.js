@@ -20,8 +20,13 @@ export const AuthProvider = ({ children }) => {
             console.log('🔍 Checking authentication status...');
             const response = await checkAuthStatus();
             
-            if (response.isAuthenticated) {
-                console.log('✅ User is authenticated, fetching user data...');
+            if (response.isAuthenticated && response.user) {
+                console.log('✅ User is authenticated with user data');
+                setUser(response.user);
+                setIsAuthenticated(true);
+                setLoading(false);
+            } else if (response.isAuthenticated) {
+                console.log('🟡 User is authenticated but no user data, fetching...');
                 await fetchCurrentUser();
             } else {
                 console.log('❌ User not authenticated');
@@ -40,17 +45,20 @@ export const AuthProvider = ({ children }) => {
     // Fetch current user data
     const fetchCurrentUser = async () => {
         try {
+            console.log('🟡 Fetching current user data...');
             const response = await getCurrentUser();
-            if (response.success) {
-                console.log('👤 User data fetched:', response.user.name);
+            
+            if (response.success && response.user) {
+                console.log('✅ User data fetched successfully:', response.user.name);
                 setUser(response.user);
                 setIsAuthenticated(true);
             } else {
+                console.log('❌ Failed to fetch user data - no user in response');
                 setUser(null);
                 setIsAuthenticated(false);
             }
         } catch (error) {
-            console.error('Failed to fetch user:', error);
+            console.error('❌ Failed to fetch user:', error);
             setUser(null);
             setIsAuthenticated(false);
         } finally {
