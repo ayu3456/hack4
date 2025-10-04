@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { useState } from "react"
-import { useAuth } from "@/lib/auth-context"
+import { useAuth } from "../context/authContext";
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
@@ -40,13 +40,15 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg">
         <div className="container flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">D</span>
+          <Link href="/" className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg">D</span>
             </div>
-            <span className="font-bold text-xl hidden sm:inline">DevConnect</span>
+            <span className="font-bold text-xl hidden sm:inline bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              DevConnect
+            </span>
           </Link>
 
           {user ? (
@@ -57,24 +59,35 @@ export function Header() {
                   <Input
                     type="search"
                     placeholder="Search posts, users..."
-                    className="pl-9 bg-muted/50"
+                    className="pl-9 bg-muted/30 border-border/50 backdrop-blur-sm focus:bg-background/80 transition-all duration-200 rounded-xl"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
               </form>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                  onClick={() => console.log("Create post")}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar className="h-10 w-10">
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-xl hover:ring-2 hover:ring-primary/20 transition-all duration-200">
+                      <Avatar className="h-10 w-10 ring-2 ring-background">
                         <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                          {user.name.charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 bg-background/80 backdrop-blur-xl border-border/50" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col gap-1">
                         <p className="text-sm font-medium leading-none">{user.name}</p>

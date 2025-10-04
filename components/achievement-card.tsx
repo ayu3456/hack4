@@ -33,25 +33,29 @@ export function AchievementCard({ achievement, userName, userAvatar, username }:
   }
 
   return (
-    <Card className="overflow-hidden border-amber-200 dark:border-amber-800/50 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/10 dark:to-orange-950/10">
-      <CardHeader className="flex flex-row items-start gap-3 pb-3">
-        <Avatar className="h-10 w-10 ring-2 ring-amber-400">
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/80 dark:from-amber-950/20 dark:via-orange-950/15 dark:to-yellow-950/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
+      <CardHeader className="flex flex-row items-start gap-3 pb-3 bg-gradient-to-r from-amber-500/5 to-orange-500/5">
+        <Avatar className="h-12 w-12 ring-2 ring-amber-400/50 ring-offset-2 ring-offset-background">
           <AvatarImage src={userAvatar || "/placeholder.svg"} alt={userName} />
-          <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-semibold">
+            {userName.charAt(0)}
+          </AvatarFallback>
         </Avatar>
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold leading-none">{userName}</p>
-            <Trophy className="h-4 w-4 text-amber-500" />
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-full p-1">
+              <Trophy className="h-3 w-3 text-white" />
+            </div>
           </div>
           <p className="text-xs text-muted-foreground">@{username}</p>
-          <span className="text-xs text-muted-foreground mt-1">
+          <span className="text-xs text-muted-foreground mt-1 bg-muted/50 px-2 py-1 rounded-full w-fit">
             {formatDistanceToNow(achievement.earnedAt, { addSuffix: true })}
           </span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-amber-100/50">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -72,34 +76,34 @@ export function AchievementCard({ achievement, userName, userAvatar, username }:
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="pb-3 space-y-3">
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-100/50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30">
-          <div className="text-3xl shrink-0">{achievement.icon}</div>
+      <CardContent className="pb-4 space-y-4">
+        <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-100/70 via-orange-100/50 to-yellow-100/70 dark:from-amber-900/30 dark:via-orange-900/20 dark:to-yellow-900/30 border border-amber-200/50 dark:border-amber-800/30 shadow-sm">
+          <div className="text-4xl shrink-0 animate-pulse">{achievement.icon}</div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1">{achievement.title}</h3>
+            <h3 className="font-bold text-base mb-2 bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">{achievement.title}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{achievement.description}</p>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between pt-0 pb-3 px-6">
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className={`gap-1.5 ${liked ? "text-red-500" : ""}`} onClick={handleLike}>
+      <CardFooter className="flex items-center justify-between pt-0 pb-4 px-6 bg-gradient-to-r from-transparent to-amber-50/30">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className={`gap-2 rounded-full hover:bg-red-50 transition-all duration-200 ${liked ? "text-red-500 bg-red-50" : "text-muted-foreground"}`} onClick={handleLike}>
             <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-            <span className="text-xs">{likes}</span>
+            <span className="text-xs font-medium">{likes}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5">
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 transition-all duration-200 rounded-full">
             <MessageCircle className="h-4 w-4" />
-            <span className="text-xs">{Math.floor(Math.random() * 20)}</span>
+            <span className="text-xs font-medium">{Math.floor(Math.random() * 20)}</span>
           </Button>
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-green-500 hover:bg-green-50 transition-all duration-200 rounded-full">
             <Share2 className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className={bookmarked ? "text-primary" : ""}
+            className={`transition-all duration-200 rounded-full ${bookmarked ? "text-amber-500 bg-amber-50" : "text-muted-foreground hover:text-amber-500 hover:bg-amber-50"}`}
             onClick={() => setBookmarked(!bookmarked)}
           >
             <Bookmark className={`h-4 w-4 ${bookmarked ? "fill-current" : ""}`} />

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
+import { useAuth } from "../../context/authContext";
 import { Header } from "@/components/header"
 import { PRChart } from "@/components/pr-chart"
 import { Leaderboard } from "@/components/leaderboard"

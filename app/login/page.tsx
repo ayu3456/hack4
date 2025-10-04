@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useAuth } from "@/lib/auth-context"
+import { useAuth } from "../../context/authContext";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Github, Code2, Users, Trophy, Zap } from "lucide-react"
@@ -14,38 +14,52 @@ export default function LoginPage() {
   const { loginWithGithub } = useAuth()
   const router = useRouter()
 
+  const githubLogin = () => {
+    const clientId = 'Ov23lixXW1MPoaQTGGuS';
+    // This should point to your backend route
+    const redirectUri = 'http://localhost:3001/auth/github/callback';
+    const scope = 'user:email';
+    console.log(":large_blue_circle: Starting GitHub OAuth flow...");
+    console.log("Redirect URI:", redirectUri);
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+  };
+
   const handleGithubLogin = async () => {
     setIsLoading(true)
     setError("")
     try {
-      await loginWithGithub()
-      router.push("/")
+      githubLogin()
     } catch (err) {
       setError("Failed to login with GitHub")
-    } finally {
       setIsLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[var(--color-brand-accent)] to-purple-600 p-12 flex-col justify-between text-white">
-        <div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-12 flex-col justify-between text-white relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-purple-600/80 to-indigo-700/90" />
+        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl" />
+        <div className="absolute bottom-32 left-16 w-24 h-24 bg-white/10 rounded-full blur-lg" />
+        
+        <div className="relative z-10">
           {/* Logo and Brand */}
           <div className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <Code2 className="w-7 h-7 text-black" />
+            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
+              <Code2 className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">DevCircle</h1>
-              <p className="text-sm text-white/80">Connect. Code. Collaborate.</p>
+              <h1 className="text-3xl font-bold">DevConnect</h1>
+              <p className="text-sm text-white/90">Connect. Code. Collaborate.</p>
             </div>
           </div>
 
           {/* Hero Content */}
-          <div className="space-y-6 max-w-lg">
-            <h2 className="text-5xl font-bold leading-tight text-balance">
-              Where developers connect and grow together
+          <div className="space-y-8 max-w-lg">
+            <h2 className="text-6xl font-bold leading-tight text-balance">
+              Where developers 
+              <span className="bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent"> connect</span> and grow together
             </h2>
             <p className="text-xl text-white/90 leading-relaxed">
               Join a thriving community of developers sharing code, celebrating achievements, and building the future of
@@ -55,48 +69,48 @@ export default function LoginPage() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-1 gap-6 max-w-lg">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-              <Users className="w-5 h-5 text-black" />
+        <div className="relative z-10 grid grid-cols-1 gap-6 max-w-lg">
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-1">Connect with Developers</h3>
+              <h3 className="font-bold text-lg mb-1">Connect with Developers</h3>
               <p className="text-white/80 text-sm">
                 Build your network with like-minded developers from around the world
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-              <Trophy className="w-5 h-5 text-black" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Trophy className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-1">Share Achievements</h3>
+              <h3 className="font-bold text-lg mb-1">Share Achievements</h3>
               <p className="text-white/80 text-sm">Celebrate your wins and inspire others with your coding journey</p>
             </div>
           </div>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-              <Zap className="w-5 h-5 text-black" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Zap className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-1">Grow Your Skills</h3>
+              <h3 className="font-bold text-lg mb-1">Grow Your Skills</h3>
               <p className="text-white/80 text-sm">Learn from the community and level up your development expertise</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center bg-background p-4">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border-2 border-[var(--color-brand-accent)]">
-              <Code2 className="w-7 h-7 text-black" />
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <Code2 className="w-8 h-8 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">DevCircle</h1>
+            <div className="text-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">DevConnect</h1>
               <p className="text-sm text-muted-foreground">Connect. Code. Collaborate.</p>
             </div>
           </div>
