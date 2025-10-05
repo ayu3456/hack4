@@ -1,7 +1,13 @@
 // contexts/AuthContext.js
 'use client'
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
-import { getCurrentUser, getUserPRs, checkAuthStatus, logoutUser, getLeaderboard } from '../services/userService';
+import { 
+    getCurrentUser, 
+    getUserPRs, 
+    checkAuthStatus, 
+    logoutUser, 
+    getLeaderboard 
+} from '../services/userService';
 
 const AuthContext = createContext();
 

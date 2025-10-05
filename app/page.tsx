@@ -8,6 +8,16 @@ import { PostCard } from "@/components/post-card"
 import { AchievementCard } from "@/components/achievement-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Rocket } from "lucide-react"
 import { mockPosts, mockAchievements, mockLeaderboard } from "@/lib/mock-data"
 
 // Use the same Post interface that PostCard expects
@@ -33,20 +43,12 @@ interface UserData {
   id: string
 }
 
-interface LeaderboardEntry {
-  userId: string
-  username: string
-  name: string
-  avatar: string
-  rank: number
-  points: number
-}
-
 export default function HomePage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
+  const [agentDialogOpen, setAgentDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -65,11 +67,11 @@ export default function HomePage() {
     try {
       setIsLoadingPosts(true)
       const response = await fetch('http://localhost:3001/api/posts')
-
+      
       if (response.ok) {
         const data = await response.json()
         const userPosts = data.posts || []
-
+        
         // Transform API posts to match the expected Post interface
         const transformedUserPosts = userPosts.map((post: any) => ({
           ...post,
@@ -81,19 +83,19 @@ export default function HomePage() {
           ...post,
           createdAt: new Date(post.createdAt)
         }))
-
+        
         // Combine mock posts with user posts from API
         const allPosts = [...transformedMockPosts, ...transformedUserPosts]
-
+        
         // Remove duplicates based on post ID and sort by createdAt
-        const uniquePosts = allPosts.filter((post, index, self) =>
+        const uniquePosts = allPosts.filter((post, index, self) => 
           index === self.findIndex(p => p.id === post.id)
         )
-
-        const sortedPosts = uniquePosts.sort((a, b) =>
+        
+        const sortedPosts = uniquePosts.sort((a, b) => 
           b.createdAt.getTime() - a.createdAt.getTime()
         )
-
+        
         setPosts(sortedPosts)
       } else {
         console.error('Failed to fetch posts')
@@ -127,17 +129,9 @@ export default function HomePage() {
         id: userId
       }
     }
-
-    // Create a minimal type for what you actually need
-    interface MinimalUser {
-      userId: string
-      username: string
-      name: string
-      avatar: string
-    }
-
-    // Then use:
-    const userData = (mockLeaderboard as MinimalUser[]).find((u: MinimalUser) => u.userId === userId)
+    
+    // Otherwise, try to find in mock data
+    const userData = (mockLeaderboard as any).find((u: any) => u.userId === userId)
     if (userData) {
       return {
         username: userData.username,
@@ -146,11 +140,11 @@ export default function HomePage() {
         id: userData.userId
       }
     }
-
+    
     // Fallback
-    return {
-      username: "user",
-      name: "User",
+    return { 
+      username: "user", 
+      name: "User", 
       avatar: "/placeholder.svg",
       id: userId
     }
@@ -174,6 +168,7 @@ export default function HomePage() {
 
       <main className="flex justify-center py-6">
         <div className="w-full max-w-2xl">
+
           <Tabs defaultValue="posts" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -230,3 +225,4 @@ export default function HomePage() {
     </div>
   )
 }
+
