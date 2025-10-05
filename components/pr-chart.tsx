@@ -1,49 +1,75 @@
+// components/pr-chart.tsx
 "use client"
 
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import type { PRData } from "@/lib/types"
+
+interface ChartData {
+  month: string
+  count: number
+}
 
 interface PRChartProps {
-  data: PRData[]
+  data: ChartData[]
 }
 
 export function PRChart({ data }: PRChartProps) {
-  const chartConfig = {
-    count: {
-      label: "Pull Requests",
-      color: "hsl(var(--chart-1))",
-    },
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>PR Activity Over Time</CardTitle>
+          <CardDescription>Your merged PRs by month</CardDescription>
+        </CardHeader>
+        <CardContent className="h-80 flex items-center justify-center">
+          <div className="text-center text-muted-foreground">
+            <p>No chart data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pull Request Activity</CardTitle>
-        <CardDescription>Your PR contributions over the past year</CardDescription>
+        <CardTitle>PR Activity Over Time</CardTitle>
+        <CardDescription>Your merged PRs by month</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+        <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis
-              dataKey="date"
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="month" 
+              stroke="#888888"
+              fontSize={12}
               tickLine={false}
-              tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => {
-                const [year, month] = value.split("-")
-                return new Date(Number.parseInt(year), Number.parseInt(month) - 1).toLocaleDateString("en-US", {
-                  month: "short",
-                })
+            />
+            <YAxis 
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'white',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px'
               }}
             />
-            <YAxis tickLine={false} axisLine={false} tickMargin={10} />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
+            <Legend />
+            <Bar 
+              dataKey="count" 
+              name="Merged PRs"
+              fill="#3b82f6"
+              radius={[4, 4, 0, 0]}
+              className="fill-primary"
+            />
           </BarChart>
-        </ChartContainer>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   )

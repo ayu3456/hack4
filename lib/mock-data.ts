@@ -1,71 +1,53 @@
 import type { Post, Achievement, PRData, LeaderboardEntry } from "./types"
 
-export const mockPosts: Post[] = [
+export const mockPosts = [
   {
     id: "1",
-    userId: "1",
-    content:
-      "Just shipped a new feature using Next.js 15! The performance improvements are incredible. Check out this dashboard we built!",
-    image: "/modern-web-dashboard-interface.jpg",
-    createdAt: new Date("2024-03-15T10:30:00"),
+    userId: "user1",
+    content: "Just deployed my latest React project! 🚀 So excited to see it live and get feedback from the community.",
+    createdAt: "2024-01-15T10:30:00Z",
     likes: 24,
-    comments: 5,
+    comments: 8,
+    shares: 3,
   },
   {
-    id: "2",
-    userId: "2",
-    content:
-      "Working on a new open source project. Excited to share it with the community soon! Here's a sneak peek of the UI.",
-    image: "/code-editor-interface-dark-theme.jpg",
-    createdAt: new Date("2024-03-14T15:20:00"),
+    id: "2", 
+    userId: "user2",
+    content: "Working on a new open source contribution. The TypeScript migration is going smoothly! 💻",
+    createdAt: "2024-01-14T15:45:00Z",
     likes: 18,
-    comments: 3,
+    comments: 5,
+    shares: 2,
   },
   {
     id: "3",
-    userId: "3",
-    content: "Learned something new about React Server Components today. The mental model is finally clicking!",
-    createdAt: new Date("2024-03-13T09:15:00"),
+    userId: "user3",
+    content: "Just learned about React Server Components and I'm blown away by the performance improvements!",
+    createdAt: "2024-01-13T09:20:00Z",
     likes: 32,
-    comments: 8,
-  },
-  {
-    id: "4",
-    userId: "4",
-    content: "Built this amazing landing page for a client. What do you think?",
-    image: "/modern-landing-page.png",
-    createdAt: new Date("2024-03-12T14:45:00"),
-    likes: 45,
     comments: 12,
-  },
-  {
-    id: "5",
-    userId: "5",
-    content: "Coffee and code - the perfect combination for a productive morning!",
-    image: "/coffee-laptop-workspace-desk.jpg",
-    createdAt: new Date("2024-03-11T08:20:00"),
-    likes: 67,
-    comments: 15,
-  },
+    shares: 6,
+  }
 ]
+
 
 export const mockAchievements: Achievement[] = [
   {
     id: "1",
     userId: "1",
-    title: "First PR Merged",
-    description: "Successfully merged your first pull request",
+    title: "1 High Impact PR Merged",
+    description: "Successfully merged your high impact pull request",
     icon: "🎉",
-    earnedAt: new Date("2024-01-15"),
+    earnedAt: new Date("2025-10-5"),
     isSystemGenerated: true,
   },
   {
     id: "2",
     userId: "1",
-    title: "10 PRs Milestone",
+    title: "10 Low Impact PR Merged",
     description: "Merged 10 pull requests",
     icon: "⭐",
-    earnedAt: new Date("2024-02-20"),
+    earnedAt: new Date("2025-10-2"),
     isSystemGenerated: true,
   },
   {
@@ -74,7 +56,7 @@ export const mockAchievements: Achievement[] = [
     title: "Code Contributor",
     description: "Contributed to 5 different repositories",
     icon: "💻",
-    earnedAt: new Date("2024-03-01"),
+    earnedAt: new Date("2025-10-01"),
     isSystemGenerated: true,
   },
   {
@@ -83,7 +65,7 @@ export const mockAchievements: Achievement[] = [
     title: "Community Helper",
     description: "Helped 10 developers with code reviews",
     icon: "🤝",
-    earnedAt: new Date("2024-03-10"),
+    earnedAt: new Date("2025-10-10"),
     isSystemGenerated: true,
   },
   {
@@ -92,7 +74,7 @@ export const mockAchievements: Achievement[] = [
     title: "100 Commits Milestone",
     description: "Reached 100 commits across all repositories",
     icon: "🔥",
-    earnedAt: new Date("2024-03-08"),
+    earnedAt: new Date("2025-10-08"),
     isSystemGenerated: true,
   },
   {

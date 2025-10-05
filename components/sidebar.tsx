@@ -11,7 +11,7 @@ interface SidebarProps {
 
 export function Sidebar({ open, onOpenChange }: SidebarProps) {
   const handleOSSDiscoveryClick = () => {
-    window.open('https://new-chat-a480.bolt.host', '_blank')
+    window.open('https://devconnectoss.vercel.app/', '_blank')
     onOpenChange(false) // Close sidebar after navigation
   }
 

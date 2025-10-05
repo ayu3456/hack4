@@ -1,23 +1,160 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../context/authContext"
 import { Header } from "@/components/header"
 import { PostCard } from "@/components/post-card"
 import { AchievementCard } from "@/components/achievement-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
 import { mockPosts, mockAchievements, mockLeaderboard } from "@/lib/mock-data"
+
+// Use the same Post interface that PostCard expects
+interface Post {
+  id: string
+  userId: string
+  content: string
+  createdAt: Date
+  likes: number
+  comments: number
+  shares: number
+  user?: {
+    name: string
+    avatar: string
+    username: string
+  }
+}
+
+interface UserData {
+  username: string
+  name: string
+  avatar: string
+  id: string
+}
+
+interface LeaderboardEntry {
+  userId: string
+  username: string
+  name: string
+  avatar: string
+  rank: number
+  points: number
+}
 
 export default function HomePage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const [posts, setPosts] = useState<Post[]>([])
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true)
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login")
     }
   }, [user, isLoading, router])
+
+  // Fetch posts when component mounts
+  useEffect(() => {
+    if (user) {
+      fetchAllPosts()
+    }
+  }, [user])
+
+  const fetchAllPosts = async () => {
+    try {
+      setIsLoadingPosts(true)
+      const response = await fetch('http://localhost:3001/api/posts')
+
+      if (response.ok) {
+        const data = await response.json()
+        const userPosts = data.posts || []
+
+        // Transform API posts to match the expected Post interface
+        const transformedUserPosts = userPosts.map((post: any) => ({
+          ...post,
+          createdAt: new Date(post.timestamp || post.createdAt)
+        }))
+
+        // Transform mock posts to match the expected Post interface
+        const transformedMockPosts = mockPosts.map(post => ({
+          ...post,
+          createdAt: new Date(post.createdAt)
+        }))
+
+        // Combine mock posts with user posts from API
+        const allPosts = [...transformedMockPosts, ...transformedUserPosts]
+
+        // Remove duplicates based on post ID and sort by createdAt
+        const uniquePosts = allPosts.filter((post, index, self) =>
+          index === self.findIndex(p => p.id === post.id)
+        )
+
+        const sortedPosts = uniquePosts.sort((a, b) =>
+          b.createdAt.getTime() - a.createdAt.getTime()
+        )
+
+        setPosts(sortedPosts)
+      } else {
+        console.error('Failed to fetch posts')
+        // Fallback to just mock posts if API fails
+        const transformedMockPosts = mockPosts.map(post => ({
+          ...post,
+          createdAt: new Date(post.createdAt)
+        }))
+        setPosts(transformedMockPosts)
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+      // Fallback to mock posts
+      const transformedMockPosts = mockPosts.map(post => ({
+        ...post,
+        createdAt: new Date(post.createdAt)
+      }))
+      setPosts(transformedMockPosts)
+    } finally {
+      setIsLoadingPosts(false)
+    }
+  }
+
+  const getUserData = (userId: string, post?: Post): UserData => {
+    // If post has user data from API, use that
+    if (post?.user) {
+      return {
+        username: post.user.username || "user",
+        name: post.user.name || "User",
+        avatar: post.user.avatar || "/placeholder.svg",
+        id: userId
+      }
+    }
+
+    // Create a minimal type for what you actually need
+    interface MinimalUser {
+      userId: string
+      username: string
+      name: string
+      avatar: string
+    }
+
+    // Then use:
+    const userData = (mockLeaderboard as MinimalUser[]).find((u: MinimalUser) => u.userId === userId)
+    if (userData) {
+      return {
+        username: userData.username,
+        name: userData.name,
+        avatar: userData.avatar,
+        id: userData.userId
+      }
+    }
+
+    // Fallback
+    return {
+      username: "user",
+      name: "User",
+      avatar: "/placeholder.svg",
+      id: userId
+    }
+  }
 
   if (isLoading) {
     return (
@@ -31,26 +168,9 @@ export default function HomePage() {
     return null
   }
 
-  const getUserData = (userId: string) => {
-    const userData = mockLeaderboard.find((u) => u.userId === userId)
-    return userData || { username: "user", name: "User", avatar: "/placeholder.svg" }
-  }
-
-  const githubLogin = () => {
-    const clientId = "Ov23lixXW1MPoaQTGGuS"
-    const redirectUri = "http://localhost:3001/auth/github/callback"
-    const scope = "user:email"
-
-    console.log("Starting GitHub OAuth flow...")
-    console.log("Redirect URI:", redirectUri)
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&scope=${scope}`
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header onPostCreated={fetchAllPosts} />
 
       <main className="flex justify-center py-6">
         <div className="w-full max-w-2xl">
@@ -61,22 +181,37 @@ export default function HomePage() {
             </TabsList>
 
             <TabsContent value="posts" className="mt-0 space-y-4">
-              {mockPosts.map((post) => {
-                const userData = getUserData(post.userId)
-                return (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    userName={userData.name}
-                    userAvatar={userData.avatar}
-                    username={userData.username}
-                  />
-                )
-              })}
+              {isLoadingPosts ? (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading posts...</p>
+                  </CardContent>
+                </Card>
+              ) : posts.length > 0 ? (
+                posts.map((post) => {
+                  const userData = getUserData(post.userId, post)
+                  return (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      userName={userData.name}
+                      userAvatar={userData.avatar}
+                      username={userData.username}
+                    />
+                  )
+                })
+              ) : (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground">No posts yet. Be the first to post!</p>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="achievements" className="mt-0 space-y-4">
-              {mockAchievements.map((achievement) => {
+              {mockAchievements.map((achievement: any) => {
                 const userData = getUserData(achievement.userId)
                 return (
                   <AchievementCard

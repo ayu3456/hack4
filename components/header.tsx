@@ -8,6 +8,7 @@ import { useAuth } from "../context/authContext";
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Sidebar } from "@/components/sidebar"
 import {
   DropdownMenu,
@@ -25,9 +26,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Home, User, LogOut, Search, Plus, MoreHorizontal } from "lucide-react"
+import { Home, User, LogOut, Search, Plus, MoreHorizontal, Send } from "lucide-react"
 
-export function Header() {
+interface HeaderProps {
+  onPostCreated?: () => void;
+}
+
+export function Header({ onPostCreated }: HeaderProps) {
   const { user, logout } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -40,7 +45,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg">
+      <header className="sticky md:mx-14 top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg">
         <div className="container flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
@@ -58,7 +63,7 @@ export function Header() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
-                    placeholder="Search posts, users..."
+                    placeholder="Search users..."
                     className="pl-9 bg-muted/30 border-border/50 backdrop-blur-sm focus:bg-background/80 transition-all duration-200 rounded-xl"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -67,22 +72,37 @@ export function Header() {
               </form>
 
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-10 w-10 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary transition-all duration-200"
-                  onClick={() => console.log("Create post")}
-                >
-                  <Plus className="h-5 w-5" />
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-2 cursor-pointer">
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden sm:inline">Create Post</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[525px]">
+                    <DialogHeader>
+                      <DialogTitle>Create a new post</DialogTitle>
+                      <DialogDescription>
+                        Share your thoughts, code, or achievements with the community
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CreatePostForm onPostCreated={onPostCreated} />
+                  </DialogContent>
+                </Dialog>
+
+                <Button size="sm" className="gap-2 cursor-pointer">
+                  <Link href="/profile" className="cursor-pointer">
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </Link>
                 </Button>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-xl hover:ring-2 hover:ring-primary/20 transition-all duration-200">
                       <Avatar className="h-10 w-10 ring-2 ring-background">
                         <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                          {user.name.charAt(0)}
+                          {user.name?.charAt(0) || 'U'}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -101,12 +121,6 @@ export function Header() {
                         <span>Home</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout} className="cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -115,25 +129,7 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden sm:inline">Create Post</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[525px]">
-                    <DialogHeader>
-                      <DialogTitle>Create a new post</DialogTitle>
-                      <DialogDescription>
-                        Share your thoughts, code, or achievements with the community
-                      </DialogDescription>
-                    </DialogHeader>
-                    <CreatePostForm />
-                  </DialogContent>
-                </Dialog>
-
-                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+                <Button size="sm" className="gap-2 cursor-pointer" onClick={() => setSidebarOpen(true)}>
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </div>
@@ -155,69 +151,78 @@ export function Header() {
   )
 }
 
-function CreatePostForm() {
+interface CreatePostFormProps {
+  onPostCreated?: () => void;
+}
+
+function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
   const [content, setContent] = useState("")
-  const [image, setImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>("")
+  const [isCreatingPost, setIsCreatingPost] = useState(false)
+  const { user } = useAuth()
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setImage(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Creating post:", { content, image })
-    // Post creation logic would be implemented here
-    setContent("")
-    setImage(null)
-    setImagePreview("")
+    if (!content.trim() || !user) return
+
+    setIsCreatingPost(true)
+    try {
+      const response = await fetch('http://localhost:3001/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: content,
+          userId: user.id,
+          userName: user.name,
+          userAvatar: user.avatar,
+          userUsername: user.username
+        }),
+      })
+
+      if (response.ok) {
+        setContent("")
+        // Close the dialog by triggering the close event
+        const dialogCloseEvent = new Event('dialogClose');
+        document.dispatchEvent(dialogCloseEvent);
+        
+        // Call the callback to refresh posts
+        if (onPostCreated) {
+          onPostCreated();
+        }
+      } else {
+        const error = await response.json()
+        console.error('Failed to create post:', error)
+        alert(`Failed to create post: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error creating post:', error)
+      alert('Error creating post. Please try again.')
+    } finally {
+      setIsCreatingPost(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <textarea
+        <Textarea
           placeholder="What's on your mind?"
           className="w-full min-h-[120px] p-3 rounded-md border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          maxLength={500}
           required
         />
-      </div>
-
-      {imagePreview && (
-        <div className="relative rounded-md overflow-hidden border">
-          <img
-            src={imagePreview || "/placeholder.svg"}
-            alt="Preview"
-            className="w-full h-auto max-h-[300px] object-cover"
-          />
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2"
-            onClick={() => {
-              setImage(null)
-              setImagePreview("")
-            }}
-          >
-            Remove
-          </Button>
+        <div className="text-sm text-muted-foreground text-right">
+          {content.length}/500 characters
         </div>
-      )}
+      </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <input type="file" id="image-upload" accept="image/*" className="hidden" onChange={handleImageChange} />
+          {/* Image upload can be added back later if needed */}
+          {/* <input type="file" id="image-upload" accept="image/*" className="hidden" />
           <Button
             type="button"
             variant="outline"
@@ -225,9 +230,25 @@ function CreatePostForm() {
             onClick={() => document.getElementById("image-upload")?.click()}
           >
             Add Photo
-          </Button>
+          </Button> */}
         </div>
-        <Button type="submit">Post</Button>
+        <Button 
+          type="submit" 
+          disabled={!content.trim() || isCreatingPost || content.length > 500}
+          className="flex items-center gap-2"
+        >
+          {isCreatingPost ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              Posting...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              Post
+            </>
+          )}
+        </Button>
       </div>
     </form>
   )
