@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Edit, Trash2, Flag, Link2, EyeOff } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import Image from "next/image"
+import { getAvatarSrc } from "@/lib/avatarUtils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,13 +22,15 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, userName, userAvatar, username }: PostCardProps) {
+  const avatarSrc = getAvatarSrc(userAvatar, post.userId);
+  
   return (
     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-card/50 backdrop-blur-sm shadow-lg hover:scale-[1.02]">
       <CardHeader className="flex flex-row items-center gap-3 pb-3 bg-gradient-to-r from-transparent to-muted/10">
         <Avatar className="h-12 w-12 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-          <AvatarImage src={userAvatar || "/placeholder.svg"} alt={userName} />
-          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-            {userName.charAt(0)}
+          <AvatarImage src={avatarSrc} alt={userName} />
+          <AvatarFallback>
+            {userName.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col flex-1">

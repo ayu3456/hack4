@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Sidebar } from "@/components/sidebar"
+import { getAvatarSrc } from "@/lib/avatarUtils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,9 +101,9 @@ export function Header({ onPostCreated }: HeaderProps) {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-xl hover:ring-2 hover:ring-primary/20 transition-all duration-200">
                       <Avatar className="h-10 w-10 ring-2 ring-background">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                          {user.name?.charAt(0) || 'U'}
+                        <AvatarImage src={getAvatarSrc(user.avatar, user.id)} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name?.charAt(0).toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                     </Button>

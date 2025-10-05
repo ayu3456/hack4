@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { Trophy, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Link2, Trash2 } from "lucide-react"
 import { useState } from "react"
+import { getAvatarSrc } from "@/lib/avatarUtils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,13 +33,15 @@ export function AchievementCard({ achievement, userName, userAvatar, username }:
     setLikes(liked ? likes - 1 : likes + 1)
   }
 
+  const avatarSrc = getAvatarSrc(userAvatar, achievement.userId);
+
   return (
     <Card className="overflow-hidden border-0 bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/80 dark:from-amber-950/20 dark:via-orange-950/15 dark:to-yellow-950/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
       <CardHeader className="flex flex-row items-start gap-3 pb-3 bg-gradient-to-r from-amber-500/5 to-orange-500/5">
         <Avatar className="h-12 w-12 ring-2 ring-amber-400/50 ring-offset-2 ring-offset-background">
-          <AvatarImage src={userAvatar || "/placeholder.svg"} alt={userName} />
-          <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-semibold">
-            {userName.charAt(0)}
+          <AvatarImage src={avatarSrc} alt={userName} />
+          <AvatarFallback>
+            {userName.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col flex-1 min-w-0">
